@@ -7,25 +7,25 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(to right, #00c6ff, #0072ff); /* Nền gradient bắt mắt */
+            background: linear-gradient(to right, #87CEFA, #4682B4);
             text-align: center;
             margin: 0;
             padding: 0;
-            color: #fff; /* Đổi màu chữ để tương phản với nền */
+            color: #fff;
         }
 
         h1 {
             color: #fff;
             margin-top: 50px;
-            text-shadow: 2px 2px 4px #000; /* Thêm hiệu ứng đổ bóng cho tiêu đề */
+            text-shadow: 2px 2px 4px #000;
         }
 
         #game {
             margin-top: 30px;
             padding: 20px;
-            background-color: rgba(0, 0, 0, 0.6); /* Nền trong suốt cho khu vực trò chơi */
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Đổ bóng cho phần game */
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             display: inline-block;
         }
 
@@ -34,47 +34,48 @@
             margin: 10px;
             font-size: 18px;
             cursor: pointer;
-            background-color: #00c6ff;
+            background-color: #4CAF50;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             color: white;
             transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #0072ff; /* Đổi màu khi hover nút */
+            background-color: #45a049;
         }
 
         #result, #notification {
             font-size: 20px;
             margin-top: 20px;
-            color: #ffffff; /* Đổi màu thông báo sang màu trắng để dễ đọc */
+            color: #ffffff;
         }
 
-        input[type="number"], input[type="text"] {
+        input[type="text"], input[type="number"] {
             padding: 10px;
             font-size: 18px;
-            width: 100px;
-            border-radius: 5px; /* Bo góc cho ô input */
-            border: 1px solid #0072ff;
+            width: 200px;
+            border-radius: 10px;
+            border: 1px solid #4CAF50;
         }
 
         .history-table {
             width: 80%;
             margin: 20px auto;
             border-collapse: collapse;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng cho bảng lịch sử */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
         }
 
         .history-table th, .history-table td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: center;
-            color: #fff; /* Đổi màu chữ trong bảng */
+            color: #fff;
         }
 
         .history-table th {
-            background-color: #0072ff;
+            background-color: #4CAF50;
         }
 
         #userInfo {
@@ -83,6 +84,41 @@
             right: 20px;
             text-align: right;
             color: #fff;
+        }
+
+        #depositButton {
+            margin-top: 20px;
+            padding: 10px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            transition: background-color 0.3s ease;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #depositButton:hover {
+            background-color: #45a049;
+        }
+
+        #depositOptions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .firework {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('fireworks.gif') center/cover no-repeat;
+            display: none;
         }
     </style>
 </head>
@@ -102,8 +138,8 @@
     </div>
 
     <div id="game" style="display:none;">
-        <p>Nhập số của bạn:</p>
-        <input type="number" id="userNumber" min="1" max="100" placeholder="Nhập số">
+        <p>Chọn chẵn (C) hoặc lẻ (L):</p>
+        <input type="text" id="userChoice" maxlength="1" placeholder="C hoặc L">
         <br><br>
         <p>Đặt cược (VNĐ):</p>
         <input type="number" id="betAmount" min="1" placeholder="Nhập số tiền cược">
@@ -114,25 +150,23 @@
     <div id="result"></div>
     <div id="notification"></div>
     
-    <div class="history">
+    <div class="history" id="history" style="display:none;">
         <h2>Lịch sử Chơi</h2>
         <table class="history-table">
             <thead>
                 <tr>
                     <th>Lần chơi</th>
-                    <th>Số đã nhập</th>
-                    <th>Cược (VNĐ)</th>
+                    <th>Chọn chẵn/lẻ</th>
                     <th>Kết quả</th>
+                    <th>Kết quả thắng/thua</th>
                 </tr>
             </thead>
-            <tbody id="historyTable">
-                <!-- Các dòng lịch sử sẽ được thêm tại đây -->
-            </tbody>
+            <tbody id="historyTable"></tbody>
         </table>
     </div>
 
     <br><br>
-    <button onclick="showDepositOptions()">Nạp tiền</button>
+    <button id="depositButton" style="display:none;" onclick="showDepositOptions()">Nạp tiền</button>
     <div id="depositOptions" style="display: none;">
         <p>Chọn mệnh giá để nạp:</p>
         <button onclick="deposit(10000)">10.000 VNĐ</button>
@@ -142,9 +176,11 @@
         <button onclick="deposit(500000)">500.000 VNĐ</button>
     </div>
 
+    <div class="firework" id="firework"></div>
+
     <script>
-        let totalMoney = 10000; // Số tiền khởi đầu là 10.000 VNĐ
-        let gameHistory = []; // Lịch sử chơi
+        let totalMoney = 10000;
+        let gameHistory = [];
 
         function startGame() {
             const playerName = document.getElementById('nameInput').value;
@@ -156,74 +192,77 @@
             document.getElementById('userInfo').style.display = 'block';
             document.getElementById('playerInfo').style.display = 'none';
             document.getElementById('game').style.display = 'block';
+            document.getElementById('history').style.display = 'block';
+            document.getElementById('depositButton').style.display = 'block';
         }
 
         function confirmChoice() {
-            // Lấy số từ input người dùng
-            const userNumber = document.getElementById('userNumber').value;
             const betAmount = document.getElementById('betAmount').value;
+            const userChoice = document.getElementById('userChoice').value.toUpperCase();
             const resultDiv = document.getElementById('result');
             const notificationDiv = document.getElementById('notification');
             const historyTable = document.getElementById('historyTable');
             const totalMoneyDiv = document.getElementById('totalMoney');
+            const fireworkDiv = document.getElementById('firework');
 
-            // Kiểm tra xem người chơi đã nhập số và số tiền cược chưa
-            if (!userNumber || !betAmount) {
-                resultDiv.innerHTML = 'Vui lòng nhập số và số tiền cược!';
+            if (!betAmount || (userChoice !== 'C' && userChoice !== 'L')) {
+                resultDiv.innerHTML = 'Vui lòng nhập số tiền cược và chọn C hoặc L!';
                 return;
             }
 
-            // Kiểm tra nếu người chơi đặt cược nhiều hơn số tiền đang có hoặc ít hơn 10.000 VNĐ
             if (parseInt(betAmount) > totalMoney) {
                 resultDiv.innerHTML = 'Bạn không có đủ tiền để cược số tiền này!';
                 return;
-            } else if (totalMoney < 10000) {
-                resultDiv.innerHTML = 'Tổng số tiền của bạn phải lớn hơn hoặc bằng 10.000 VNĐ để tiếp tục chơi!';
-                return;
             }
 
-            // Tạo random kết quả thắng hay thua
-            const randomResult = Math.random() >= 0.5; // 50% cơ hội thắng
+            const randomNumber = Math.floor(Math.random() * 100) + 1;
+            const isEven = randomNumber % 2 === 0;
+            const correctChoice = isEven ? 'C' : 'L';
 
-            // Xác định thắng hay thua
             let won = false;
-            if (randomResult) {
-                resultDiv.innerHTML = `Số bạn đã nhập là: ${userNumber}. Bạn đã thắng và được x3 số tiền cược!`;
-                totalMoney += parseInt(betAmount) * 2; // Người chơi thắng được x3 tiền cược
+            if (userChoice === correctChoice) {
+                resultDiv.innerHTML = `Số ${randomNumber} là ${isEven ? 'chẵn' : 'lẻ'}. Bạn đã thắng và được x3 số tiền cược!`;
+                totalMoney += parseInt(betAmount) * 2;
                 notificationDiv.innerHTML = 'Bạn đã thắng!';
                 notificationDiv.style.color = 'green';
                 won = true;
+                if (totalMoney >= 100000000) {
+                    fireworkDiv.style.display = 'block';
+                    setTimeout(() => fireworkDiv.style.display = 'none', 5000);
+                }
             } else {
-                resultDiv.innerHTML = `Số bạn đã nhập là: ${userNumber}. Bạn đã thua và mất hết số tiền cược!`;
-                totalMoney -= parseInt(betAmount); // Người chơi thua mất tiền cược
+                resultDiv.innerHTML = `Số ${randomNumber} là ${isEven ? 'chẵn' : 'lẻ'}. Bạn đã thua và mất hết số tiền cược!`;
+                totalMoney -= parseInt(betAmount);
                 notificationDiv.innerHTML = 'Bạn đã thua!';
                 notificationDiv.style.color = 'red';
             }
 
-            // Cập nhật tổng số tiền đang có
             totalMoneyDiv.innerHTML = `Tổng số tiền: ${totalMoney} VNĐ`;
 
-            // Lưu vào mảng lịch sử và hiển thị cả thắng và thua
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `<td>${gameHistory.length + 1}</td><td>${userNumber}</td><td>${betAmount}</td><td>${won ? 'Thắng' : 'Thua'}</td>`;
-            historyTable.appendChild(newRow);
-
             gameHistory.push({
-                number: userNumber,
-                bet: betAmount,
-                result: won ? 'Thắng' : 'Thua'
+                choice: userChoice,
+                result: randomNumber,
+                outcome: won ? 'Thắng' : 'Thua'
             });
+
+            const newRow = historyTable.insertRow();
+            const cell1 = newRow.insertCell(0);
+            const cell2 = newRow.insertCell(1);
+            const cell3 = newRow.insertCell(2);
+            const cell4 = newRow.insertCell(3);
+            cell1.innerHTML = gameHistory.length;
+            cell2.innerHTML = userChoice;
+            cell3.innerHTML = randomNumber;
+            cell4.innerHTML = won ? 'Thắng' : 'Thua';
         }
 
         function showDepositOptions() {
-            document.getElementById('depositOptions').style.display = 'block';
+            document.getElementById('depositOptions').style.display = 'flex';
         }
 
         function deposit(amount) {
             totalMoney += amount;
             document.getElementById('totalMoney').innerHTML = `Tổng số tiền: ${totalMoney} VNĐ`;
-            alert(`Bạn đã nạp thành công ${amount} VNĐ!`);
-            // Thu gọn lại phần nạp tiền sau khi nạp
             document.getElementById('depositOptions').style.display = 'none';
         }
     </script>
