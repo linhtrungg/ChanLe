@@ -241,8 +241,9 @@
             const won = (userChoice === 'C' && isEven) || (userChoice === 'L' && !isEven);
 
             if (won) {
-                document.getElementById('result').innerHTML = `Số ${randomNumber} là ${isEven ? 'chẵn' : 'lẻ'}. Bạn đã thắng!`;
-                totalMoney += parseInt(betAmount);
+                const winnings = betAmount * 2.5; // Multiply by 2.5 when winning
+                totalMoney += parseInt(winnings);
+                document.getElementById('result').innerHTML = `Số ${randomNumber} là ${isEven ? 'chẵn' : 'lẻ'}. Bạn đã thắng và nhận được ${winnings} VNĐ!`;
                 document.getElementById('notification').innerHTML = 'Chúc mừng! Bạn đã thắng!';
                 document.getElementById('notification').style.color = 'green';
             } else {
@@ -279,10 +280,24 @@
             document.getElementById('history').style.display = 'block';
         }
 
+        // Deposit function with promotions
         function deposit(amount) {
-            totalMoney += amount;
+            let bonus = 0;
+
+            // Apply deposit bonus
+            if (amount === 200000) {
+                bonus = amount * 0.1; // 10% bonus for 200k
+            } else if (amount === 500000) {
+                bonus = amount * 0.2; // 20% bonus for 500k
+            }
+
+            totalMoney += amount + bonus;
             updateMoneyDisplay();
+
             document.getElementById('depositOptionsContainer').style.display = 'none';
+            if (bonus > 0) {
+                alert(`Bạn đã nạp ${amount} VNĐ và nhận được ${bonus} VNĐ tiền thưởng!`);
+            }
         }
 
         function showDepositOptions() {
