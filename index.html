@@ -14,10 +14,24 @@
             color: #fff;
         }
 
+        /* Hiệu ứng nhấp nháy 7 màu cho dòng chữ */
         h1 {
-            color: #fff;
+            font-size: 48px;
+            font-weight: bold;
             margin-top: 50px;
+            animation: rainbowText 2s infinite;
             text-shadow: 2px 2px 4px #000;
+        }
+
+        @keyframes rainbowText {
+            0% { color: red; }
+            14% { color: orange; }
+            28% { color: yellow; }
+            42% { color: green; }
+            57% { color: blue; }
+            71% { color: indigo; }
+            85% { color: violet; }
+            100% { color: red; }
         }
 
         #game {
@@ -109,6 +123,15 @@
             display: flex;
             justify-content: center;
             gap: 10px;
+            margin: 0 auto;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        #depositText {
+            margin-top: 20px;
+            font-size: 22px;
+            color: white;
         }
 
         .firework {
@@ -167,13 +190,16 @@
 
     <br><br>
     <button id="depositButton" style="display:none;" onclick="showDepositOptions()">Nạp tiền</button>
-    <div id="depositOptions" style="display: none;">
-        <p>Chọn mệnh giá để nạp:</p>
-        <button onclick="deposit(10000)">10.000 VNĐ</button>
-        <button onclick="deposit(50000)">50.000 VNĐ</button>
-        <button onclick="deposit(100000)">100.000 VNĐ</button>
-        <button onclick="deposit(200000)">200.000 VNĐ</button>
-        <button onclick="deposit(500000)">500.000 VNĐ</button>
+
+    <div id="depositOptionsContainer" style="display: none;">
+        <p id="depositText">Chọn mệnh giá để nạp:</p>
+        <div id="depositOptions">
+            <button onclick="deposit(10000)">10.000 VNĐ</button>
+            <button onclick="deposit(50000)">50.000 VNĐ</button>
+            <button onclick="deposit(100000)">100.000 VNĐ</button>
+            <button onclick="deposit(200000)">200.000 VNĐ</button>
+            <button onclick="deposit(500000)">500.000 VNĐ</button>
+        </div>
     </div>
 
     <div class="firework" id="firework"></div>
@@ -185,85 +211,82 @@
         function startGame() {
             const playerName = document.getElementById('nameInput').value;
             if (!playerName) {
-                alert('Vui lòng nhập tên của bạn!');
+                alert('Vui lòng nhập tên của bạn');
                 return;
             }
-            document.getElementById('playerName').innerText = playerName;
+
+            document.getElementById('playerName').innerHTML = playerName;
             document.getElementById('userInfo').style.display = 'block';
             document.getElementById('playerInfo').style.display = 'none';
             document.getElementById('game').style.display = 'block';
-            document.getElementById('history').style.display = 'block';
             document.getElementById('depositButton').style.display = 'block';
         }
 
         function confirmChoice() {
-            const betAmount = document.getElementById('betAmount').value;
             const userChoice = document.getElementById('userChoice').value.toUpperCase();
-            const resultDiv = document.getElementById('result');
-            const notificationDiv = document.getElementById('notification');
-            const historyTable = document.getElementById('historyTable');
-            const totalMoneyDiv = document.getElementById('totalMoney');
-            const fireworkDiv = document.getElementById('firework');
+            const betAmount = document.getElementById('betAmount').value;
 
-            if (!betAmount || (userChoice !== 'C' && userChoice !== 'L')) {
-                resultDiv.innerHTML = 'Vui lòng nhập số tiền cược và chọn C hoặc L!';
+            if (userChoice !== 'C' && userChoice !== 'L') {
+                alert('Vui lòng chọn C (Chẵn) hoặc L (Lẻ)');
                 return;
             }
 
-            if (parseInt(betAmount) > totalMoney) {
-                resultDiv.innerHTML = 'Bạn không có đủ tiền để cược số tiền này!';
+            if (betAmount <= 0 || betAmount > totalMoney) {
+                alert('Số tiền cược không hợp lệ hoặc vượt quá số tiền hiện có');
                 return;
             }
 
-            const randomNumber = Math.floor(Math.random() * 100) + 1;
+            const randomNumber = Math.floor(Math.random() * 100);
             const isEven = randomNumber % 2 === 0;
-            const correctChoice = isEven ? 'C' : 'L';
+            const won = (userChoice === 'C' && isEven) || (userChoice === 'L' && !isEven);
 
-            let won = false;
-            if (userChoice === correctChoice) {
-                resultDiv.innerHTML = `Số ${randomNumber} là ${isEven ? 'chẵn' : 'lẻ'}. Bạn đã thắng và được x3 số tiền cược!`;
-                totalMoney += parseInt(betAmount) * 2;
-                notificationDiv.innerHTML = 'Bạn đã thắng!';
-                notificationDiv.style.color = 'green';
-                won = true;
-                if (totalMoney >= 100000000) {
-                    fireworkDiv.style.display = 'block';
-                    setTimeout(() => fireworkDiv.style.display = 'none', 5000);
-                }
+            if (won) {
+                document.getElementById('result').innerHTML = `Số ${randomNumber} là ${isEven ? 'chẵn' : 'lẻ'}. Bạn đã thắng!`;
+                totalMoney += parseInt(betAmount);
+                document.getElementById('notification').innerHTML = 'Chúc mừng! Bạn đã thắng!';
+                document.getElementById('notification').style.color = 'green';
             } else {
-                resultDiv.innerHTML = `Số ${randomNumber} là ${isEven ? 'chẵn' : 'lẻ'}. Bạn đã thua và mất hết số tiền cược!`;
+                document.getElementById('result').innerHTML = `Số ${randomNumber} là ${isEven ? 'chẵn' : 'lẻ'}. Bạn đã thua!`;
                 totalMoney -= parseInt(betAmount);
-                notificationDiv.innerHTML = 'Bạn đã thua!';
-                notificationDiv.style.color = 'red';
+                document.getElementById('notification').innerHTML = 'Rất tiếc! Bạn đã thua!';
+                document.getElementById('notification').style.color = 'red';
             }
 
-            totalMoneyDiv.innerHTML = `Tổng số tiền: ${totalMoney} VNĐ`;
+            updateMoneyDisplay();
+            updateHistory(userChoice, randomNumber, won);
+        }
 
-            gameHistory.push({
-                choice: userChoice,
-                result: randomNumber,
-                outcome: won ? 'Thắng' : 'Thua'
-            });
+        function updateMoneyDisplay() {
+            document.getElementById('totalMoney').innerHTML = `Tổng số tiền: ${totalMoney} VNĐ`;
+        }
 
+        function updateHistory(choice, result, won) {
+            const historyTable = document.getElementById('historyTable');
             const newRow = historyTable.insertRow();
+
             const cell1 = newRow.insertCell(0);
             const cell2 = newRow.insertCell(1);
             const cell3 = newRow.insertCell(2);
             const cell4 = newRow.insertCell(3);
-            cell1.innerHTML = gameHistory.length;
-            cell2.innerHTML = userChoice;
-            cell3.innerHTML = randomNumber;
-            cell4.innerHTML = won ? 'Thắng' : 'Thua';
-        }
 
-        function showDepositOptions() {
-            document.getElementById('depositOptions').style.display = 'flex';
+            cell1.innerHTML = gameHistory.length + 1;
+            cell2.innerHTML = choice === 'C' ? 'Chẵn' : 'Lẻ';
+            cell3.innerHTML = result;
+            cell4.innerHTML = won ? 'Thắng' : 'Thua';
+
+            gameHistory.push({ choice, result, won });
+
+            document.getElementById('history').style.display = 'block';
         }
 
         function deposit(amount) {
             totalMoney += amount;
-            document.getElementById('totalMoney').innerHTML = `Tổng số tiền: ${totalMoney} VNĐ`;
-            document.getElementById('depositOptions').style.display = 'none';
+            updateMoneyDisplay();
+            document.getElementById('depositOptionsContainer').style.display = 'none';
+        }
+
+        function showDepositOptions() {
+            document.getElementById('depositOptionsContainer').style.display = 'block';
         }
     </script>
 </body>
